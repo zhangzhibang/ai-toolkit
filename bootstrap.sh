@@ -865,59 +865,37 @@ cat > "$TOOLKIT_DIR/CLAUDE.md" << 'CLAUDEEOF'
 
 ## 禁止区域
 
-- `<TOOLKIT>/**` - 工作流自身
+- `scripts/**` - 工作流脚本（由 bootstrap 管理）
 - `build/**` - 构建输出
 - `.gradle/**` - 缓存
 - `.idea/**` - IDE 配置
 CLAUDEEOF
 
 cat > "$TOOLKIT_DIR/AGENTS.md" << 'AGENTEOF'
-# AGENTS.md - AI Agent 行为规范
+# AGENTS.md - Codex 行为规范
 
-## 用户只需要做 2 件事
+> 本文件是 Codex 的入口规范，实际工作流请阅读 `CLAUDE.md`。
 
-```
-1. 运行一次: ./init.sh
-2. 下达命令: "实现 FTP 适配器"
-```
+## 快速开始
 
-**AI 全自动完成所有工作。**
+1. **阅读规范**: 打开 `CLAUDE.md` 了解完整工作流
+2. **执行命令**: 用户下达开发任务
+3. **自动工作**: AI 按 CLAUDE.md 中的强制工作流执行
 
----
+## 核心约束（来自 CLAUDE.md）
 
-## 角色定义
+- 每次改文件前必须 `scripts/validate.sh check-files`
+- 完成前必须 `scripts/review.sh check` 通过
+- 编译必须通过
+- 不允许 TODO/FIXME/NotImplemented
+- 不允许 `return null;` 作为最终返回值
 
-- **Executor**: 执行具体代码实现
-- **Supervisor**: 边界验证、审查门、快照管理、错误记录
+## 禁止修改区域
 
-## 启动流程（必须执行）
-
-当用户下达命令时，**必须**按以下顺序执行：
-
-```
-1. 创建任务: ai-toolkit/scripts/task.sh create "<任务名称>" F-001 HIGH '["src/**"]'
-2. 获取返回的 task_id（如 T-001）
-3. 调用: ai-toolkit/scripts/supervisor.sh start <task_id>
-4. 阅读输出的【强制执行】指令
-5. 按指令顺序执行
-```
-
-**注意**: task_id 由 task.sh create 自动生成，不要硬编码。
-
-## 五阶段流转
-
-```
-DIRECTIVE → PLAN → EXECUTE → REVIEW → COMPLETE
-```
-
-每个阶段通过调用 `supervisor.sh gate <phase>` 进入下一阶段。
-
-## 禁止事项
-
-- 禁止直接实现代码（必须先启动 supervisor）
-- 禁止跳过 validate.sh check-files
-- 禁止跳过 review.sh check
-- 禁止修改 ai-toolkit/**, build/**, .gradle/**, .idea/**
+- `scripts/**` - 工作流脚本
+- `build/**` - 构建输出
+- `.gradle/**` - 缓存
+- `.idea/**` - IDE 配置
 AGENTEOF
 
 # ============================================================
@@ -929,8 +907,8 @@ cat > "$TOOLKIT_DIR/功能说明书.md" << 'FUNCEOF'
 ## 用户只需要做 2 件事
 
 ```bash
-1. 运行一次: ./init.sh
-2. 下达命令: "实现 FTP 适配器"
+1. 运行一次: ./ai-init.sh
+2. 下达命令: "<你的开发任务>"
 ```
 
 **AI 全自动完成所有工作。**
@@ -1072,7 +1050,7 @@ echo ""
 echo "✓ AI 工作流工具箱已初始化: $TOOLKIT_DIR/"
 echo ""
 echo "完成！你只需要："
-echo "  1. 下达自然语言命令，如：\"实现 FTP 适配器\""
+echo "  1. 下达自然语言命令，如：\"<实现某个功能>\""
 echo "  2. AI 全自动完成所有工作"
 echo ""
 echo "快捷命令:"
