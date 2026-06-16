@@ -1,0 +1,18 @@
+name: Documentation
+description: Request missing documentation or examples
+title: "Docs: "
+labels:
+  - documentation
+body:
+  - type: textarea
+    id: gap
+    attributes:
+      label: Documentation gap
+      description: What is unclear or missing?
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested improvement
+      description: Link or describe what should be added.

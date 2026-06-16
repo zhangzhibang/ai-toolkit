@@ -7,12 +7,41 @@
 #
 set -euo pipefail
 
-# TOOLKIT_DIR = 项目根目录（必须有 CLAUDE.md, AGENTS.md）
-if [[ -z "${TOOLKIT_DIR:-}" ]]; then
-  echo "错误: 请设置 TOOLKIT_DIR"
-  echo "用法: TOOLKIT_DIR=/path/to/project bash bootstrap.sh"
+usage() {
+  cat <<'EOF'
+Usage:
+  bash bootstrap.sh /path/to/project
+  TOOLKIT_DIR=/path/to/project bash bootstrap.sh
+
+Bootstrap writes AI Toolkit workflow files into the target project directory.
+EOF
+}
+
+fail() {
+  echo "错误: $1" >&2
   exit 1
+}
+
+require_command() {
+  local cmd="$1"
+  command -v "$cmd" >/dev/null 2>&1 || fail "缺少依赖命令: $cmd"
+}
+
+if [[ "${1:-}" == "-h" ]] || [[ "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
 fi
+
+if [[ -z "${TOOLKIT_DIR:-}" ]] && [[ -n "${1:-}" ]]; then
+  TOOLKIT_DIR="$1"
+fi
+
+[[ -n "${TOOLKIT_DIR:-}" ]] || fail "请提供目标目录。用法: bash bootstrap.sh /path/to/project"
+[[ -d "$TOOLKIT_DIR" ]] || fail "目标目录不存在: $TOOLKIT_DIR"
+[[ "$TOOLKIT_DIR" != "/" ]] || fail "禁止向根目录写入 toolkit 文件"
+
+require_command bash
+require_command python3
 
 echo "Initializing AI workflow toolkit at: $TOOLKIT_DIR/"
 
@@ -1031,7 +1060,7 @@ if [[ -z "$BOOTSTRAP" ]]; then
   echo "请从 https://gist/... 下载 bootstrap.sh"
   exit 1
 fi
-TOOLKIT_DIR="$(cd "$(dirname "$0")" && pwd)" bash "$BOOTSTRAP" "$TOOLKIT_DIR"
+TOOLKIT_DIR="$(cd "$(dirname "$0")" && pwd)" bash "$BOOTSTRAP"
 INITEOF
 chmod +x "$TOOLKIT_DIR/ai-init.sh"
 
